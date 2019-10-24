@@ -122,14 +122,47 @@ designElement.change(e => {
   }
 });
 
-// if(selectedDesign === 'js puns') {
-//   // cornflowerblue
-//   // darkslategrey
-//   // gold
-//   echo 'sdf';
-// } else if (selectedDesign === 'heart js') {
-//   // tomato
-//   // steelblue
-//   // dimgrey
-//   echo 'sdf';
-// }
+// get reference all elements with in the activities class
+//const checkboxes = document.querySelectorAll(".activities input");
+const checkboxes = $(".activities input:checkbox");
+
+document.querySelector(".activities").addEventListener("change", e => {
+  const clicked = e.target;
+  const clickedCost = clicked.attributes["data-cost"].value;
+  let clickedTime = 0;
+  if (typeof clicked.attributes["data-day-and-time"] !== "undefined") {
+    clickedTime = clicked.attributes["data-day-and-time"].value;
+  }
+
+  for (let i = 0; i < checkboxes.length; i++) {
+    let currentTime = 0;
+    if (
+      typeof checkboxes[i].getAttribute("data-day-and-time") !== "undefined"
+    ) {
+      currentTime = checkboxes[i].getAttribute("data-day-and-time");
+    }
+
+    // disable other workshops with same date and time as the selected workshops
+    if (clickedTime === currentTime && clicked !== checkboxes[i]) {
+      if ($(clicked).prop("checked")) {
+        // set up an element to add to the dom
+        const spanTag = document.createElement("span");
+        // adding html text to show users why workshop slot not available
+        spanTag.innerHTML =
+          "<b style='color:red;' >This time slot isn't available due to selection of a workshop during same time.</b>";
+        // adding span element to the dom
+        checkboxes[i].parentNode.insertBefore(
+          spanTag,
+          checkboxes[i].nextSibling.nextSibling
+        );
+        // disable element if time slot is same as another one
+        checkboxes[i].setAttribute("disabled", "true");
+      } else {
+        // removing informational span element from dom
+        checkboxes[i].nextSibling.nextSibling.remove();
+        // enable element
+        checkboxes[i].removeAttribute("disabled");
+      }
+    }
+  }
+});
