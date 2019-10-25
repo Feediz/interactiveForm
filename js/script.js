@@ -1,3 +1,6 @@
+// ================================================================
+// ==============  Basic info section =============================
+// ================================================================
 // setting focus on first field
 $("form:first *:input[type!=hidden]:first").focus();
 
@@ -17,6 +20,10 @@ jobRoleElement.change(e => {
     $("#other-title").hide();
   }
 });
+
+// ================================================================
+// ==============  t-shirt info section ===========================
+// ================================================================
 
 // reference design select element
 const designElement = $("#design");
@@ -122,19 +129,45 @@ designElement.change(e => {
   }
 });
 
+// ================================================================
+// ==============  Register for activities section ================
+// ================================================================
 // get reference all elements with in the activities class
 //const checkboxes = document.querySelectorAll(".activities input");
 const checkboxes = $(".activities input:checkbox");
+const checkBoxesFieldSet = document.querySelector(".activities");
 
-document.querySelector(".activities").addEventListener("change", e => {
+// runningTotalCost will hold total cost for selected activities
+let runningTotalCost = 0;
+const runningTotalCostUI = document.createElement("span");
+runningTotalCostUI.innerHTML = "Total Cost: $" + runningTotalCost;
+runningTotalCostUI.id = "runningCostSpan";
+
+checkBoxesFieldSet.parentNode.insertBefore(
+  runningTotalCostUI,
+  checkBoxesFieldSet.nextElementSibling
+);
+
+checkBoxesFieldSet.addEventListener("change", e => {
   const clicked = e.target;
-  const clickedCost = clicked.attributes["data-cost"].value;
+  let clickedCost = clicked.attributes["data-cost"].value;
+  clickedCost = clickedCost.substr(1);
+
+  if (e.target.checked) {
+    runningTotalCost = parseInt(runningTotalCost) + parseInt(clickedCost);
+  } else {
+    runningTotalCost = parseInt(runningTotalCost) - parseInt(clickedCost);
+  }
+
+  // Update running cost
+  runningTotalCostUI.innerHTML = "Total Cost: $" + runningTotalCost;
   let clickedTime = 0;
   if (typeof clicked.attributes["data-day-and-time"] !== "undefined") {
     clickedTime = clicked.attributes["data-day-and-time"].value;
   }
 
   for (let i = 0; i < checkboxes.length; i++) {
+    // initialize variable to hold date and time information for comparison
     let currentTime = 0;
     if (
       typeof checkboxes[i].getAttribute("data-day-and-time") !== "undefined"
@@ -149,7 +182,7 @@ document.querySelector(".activities").addEventListener("change", e => {
         const spanTag = document.createElement("span");
         // adding html text to show users why workshop slot not available
         spanTag.innerHTML =
-          "<b style='color:red;' >This time slot isn't available due to selection of a workshop during same time.</b>";
+          "<b style='color:red;' >This time slot isn't available.</b>";
         // adding span element to the dom
         checkboxes[i].parentNode.insertBefore(
           spanTag,
@@ -165,4 +198,63 @@ document.querySelector(".activities").addEventListener("change", e => {
       }
     }
   }
+});
+
+// ================================================================
+// ==============  payment info section ================
+// ================================================================
+
+// get a reference to paypal
+const paypalDiv = $("#paypal");
+// hide paypal info at first
+paypalDiv.hide();
+
+// get a reference to bitcoin
+const bitCoinDiv = $("#bitcoin");
+// hide bitcoin info at first
+bitCoinDiv.hide();
+
+// get a reference to credit card div
+const ccDiv = $("#credit-card");
+
+const paymentMethodSelect = $("#payment");
+paymentMethodSelect.on("change", e => {
+  let selectedPaymentMethod = e.target.value;
+
+  if (selectedPaymentMethod === "Credit Card") {
+    // show cc and hide paypal and bitcoin
+    bitCoinDiv.hide();
+    ccDiv.show();
+    paypalDiv.hide();
+  } else if (selectedPaymentMethod === "PayPal") {
+    // show paypal and hide bitcoin and cc
+    bitCoinDiv.hide();
+    ccDiv.hide();
+    paypalDiv.show();
+  } else if (selectedPaymentMethod === "Bitcoin") {
+    //show bitcoin and hide cc and paypal
+    bitCoinDiv.show();
+    ccDiv.hide();
+    paypalDiv.hide();
+  }
+});
+
+$("form").on("submit", () => {
+  //Name field can't be blank.
+  let name = $("#name").val();
+
+  //Email field must be a validly formatted e-mail address (you don't have to check that it's a real e-mail address, just that it's formatted like one: dave@teamtreehouse.com for example.
+  let email = $("#mail").val();
+
+  // User must select at least one checkbox under the "Register for Activities" section of the form.
+
+  // If the selected payment option is "Credit Card," make sure the user has supplied a Credit Card number, a Zip Code, and a 3 number CVV value before the form can be submitted.
+
+  // Credit Card field should only accept a number between 13 and 16 digits.
+
+  // The Zip Code field should accept a 5-digit number.
+
+  // The CVV should only accept a number that is exactly 3 digits long.
+  alert("form submitted");
+  return false;
 });
