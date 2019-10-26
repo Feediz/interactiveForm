@@ -201,7 +201,7 @@ checkBoxesFieldSet.addEventListener("change", e => {
 });
 
 // ================================================================
-// ==============  payment info section ================
+// ==============  payment info section ===========================
 // ================================================================
 
 // get a reference to paypal
@@ -238,11 +238,52 @@ paymentMethodSelect.on("change", e => {
     paypalDiv.hide();
   }
 });
+$("form").on("change", e => {
+  const typedID = e.target.id;
+  const typedValue = e.target.value;
 
-$("form").on("submit", () => {
+  // validate name field
+  if (typedID === "name") {
+    validateName(typedValue, typedID);
+  }
+
+  // validate email field
+  if (typedID === "mail") {
+    validateEmail(typedValue, typedID);
+  }
+});
+
+function validateName(typedValue, typedID) {
+  if (typedValue.length === 0) {
+    showValidationMessage(true, $("#" + typedID), "Name is required");
+  } else {
+    showValidationMessage(false, $("#" + typedID), "Name is required");
+  }
+}
+
+function validateEmail(typedValue, typedID) {
+  const regEx = /^[^@]+@[^@.]+\.[a-z]+$/i;
+  //return regEx.test(typedValue);
+
+  if (typedValue.length === 0) {
+    showValidationMessage(true, $("#" + typedID), "Email is required");
+  } else {
+    const testEmail = isValidEmail(typedValue);
+    console.log(typedValue + " is ::: " + testEmail);
+    if (testEmail) {
+      showValidationMessage(false, $("#" + typedID), "");
+    } else {
+      showValidationMessage(true, $("#" + typedID), "Valid email required");
+    }
+  }
+}
+$("form").on("submit", e => {
+  e.preventDefault();
   //Name field can't be blank.
   let name = $("#name").val();
-
+  if (name.length === 0) {
+    showValidationMessage(true, $("#name"), "Name is required");
+  }
   //Email field must be a validly formatted e-mail address (you don't have to check that it's a real e-mail address, just that it's formatted like one: dave@teamtreehouse.com for example.
   let email = $("#mail").val();
 
@@ -258,3 +299,31 @@ $("form").on("submit", () => {
   alert("form submitted");
   return false;
 });
+
+// ================================================================
+// ==============  helper functions ===============================
+// ================================================================
+// Must be a valid email address my@email.com
+function isValidEmail(email) {
+  const regEx = /^[^@]+@[^@.]+\.[a-z]+$/i;
+  return regEx.test(email);
+}
+
+function showValidationMessage(show, element, message) {
+  // set up span element to show error message
+  const spanElement = document.createElement("span");
+  spanElement.innerHTML = message;
+  spanElement.id = "errorMessage";
+
+  if (show) {
+    spanElement.style.display = "inherit";
+    $(element).after(spanElement);
+  } else {
+    //spanElement.style.display = "inherit";
+    $("#errorMessage").remove();
+  }
+}
+
+const testEmail = "my@email.com";
+const ttt = isValidEmail(testEmail);
+console.log(testEmail + " " + ttt);
