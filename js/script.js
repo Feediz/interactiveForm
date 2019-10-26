@@ -251,7 +251,49 @@ $("form").on("change", e => {
   if (typedID === "mail") {
     validateEmail(typedValue, typedID);
   }
+
+  // User must select at least one checkbox under the "Register for Activities" section of the form.
+  // validate email field
+  
+  if (typedID === "payment") {
+    //validateEmail(typedValue, typedID);
+    validatePayment(typedValue, typedID);
+  }
+  // If the selected payment option is "Credit Card," make sure the user has supplied a Credit Card number, a Zip Code, and a 3 number CVV value before the form can be submitted.
+
+  // Credit Card field should only accept a number between 13 and 16 digits.
+
+  // The Zip Code field should accept a 5-digit number.
+
+  // The CVV should only accept a number that is exactly 3 digits long.
 });
+
+
+function validatePayment(typedValue, typedID) {
+  if (typedValue.length === 'Credit Card') {
+    // if cc selected
+    // cc number 
+    // zip code
+    //cvv
+    const cvv = $('#cvv').val();
+    if(cvv.length !== 3) {
+      return false;
+    }
+
+    const ccNumber = $('#cc-num').val();
+    
+    const zipCode = $('#zip').val();
+
+    showValidationMessage(true, $("#" + typedID), "Name is required");
+
+  } else if (typedValue.length === 'PayPal') {
+    showValidationMessage(true, $("#" + typedID), "Name is required"); 
+  }
+  else if (typedValue.length === 'Bitcoin') {
+    showValidationMessage(true, $("#" + typedID), "Name is required");
+  }
+}
+
 
 function validateName(typedValue, typedID) {
   if (typedValue.length === 0) {
