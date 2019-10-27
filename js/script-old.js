@@ -43,34 +43,26 @@ $colorElementOptions.each(i => {
   $("#color :nth-child(" + i + ")").css("display", "none");
 });
 // append and select the option telling user to select theme first
-//$colorElement.append(new Option("Please select a T-shirt theme", ""));
-$colorElement.append('<option value="">Please select a T-shirt theme</option>');
-
+$colorElement.append(new Option("Please select a T-shirt theme", ""));
 $colorElement.val("");
 
 designElement.change(e => {
   const selectedDesign = e.target.value;
-  // starting with one since select options indexes are not zero based
-  let i = 1;
-
-  // hide the select t-shirt option under the color drop down
-  $("option:contains(Please select a T-shirt theme)").hide();
-
-  // hide the select theme option under the design drop down
-  $("option:contains(Select Theme)").hide();
 
   if (designElement.value !== "") {
     if (selectedDesign === "js puns") {
       $colorElementOptions.each(i => {
+        // starting with one since select options indexes are not zero based
         i = i + 1;
         const $currentOption = $("#color :nth-child(" + i + ")");
-
         if ($currentOption.val() === "cornflowerblue") {
           $currentOption.css("display", "");
         } else if ($currentOption.val() === "darkslategrey") {
           $currentOption.css("display", "");
         } else if ($currentOption.val() === "gold") {
           $currentOption.css("display", "");
+        } else if ($currentOption.val() === "") {
+          $currentOption.css("display", "none");
         }
 
         if ($currentOption.val() === "tomato") {
@@ -80,9 +72,8 @@ designElement.change(e => {
         } else if ($currentOption.val() === "dimgrey") {
           $currentOption.css("display", "none");
         }
-        // select the corn flower option
-        $colorElement.val($("#color :nth-child(1)").val());
-        // $colorElement.val("cornflowerblue");
+
+        $colorElement.val("cornflowerblue");
       });
     } else if (selectedDesign === "heart js") {
       $colorElementOptions.each(i => {
@@ -107,9 +98,7 @@ designElement.change(e => {
           $currentOption.css("display", "none");
         }
 
-        // select the tomato option
-        // $colorElement.val("tomato");
-        $colorElement.val($("#color :nth-child(4)").val());
+        $colorElement.val("tomato");
       });
     } else if (selectedDesign === "") {
       $colorElementOptions.each(i => {
@@ -249,168 +238,133 @@ paymentMethodSelect.on("change", e => {
     paypalDiv.hide();
   }
 });
+$("form").on("change", e => {
+  const typedID = e.target.id;
+  const typedValue = e.target.value;
 
-// ================================================================
-// ==============  validator functions ============================
-// ================================================================
-$("form").on("input submit", e => {
-  e.preventDefault();
-  const eventType = e.type;
-  const element = e.target;
-  const elementID = element.id;
-
-  let isFormValid = false;
-
-  // validate name field on submit and as user types
-  if (elementID === "name" || eventType === "submit") {
-    if (validateName()) {
-      isFormValid = true;
-      console.log(isFormValid);
-    }
+  // validate name field
+  if (typedID === "name") {
+    validateName(typedValue, typedID);
   }
 
-  // validate email field on submit and as user types
-  if (elementID === "mail" || eventType === "submit") {
-    validateEmail();
+  // validate email field
+  if (typedID === "mail") {
+    validateEmail(typedValue, typedID);
   }
 
-  if (eventType === "submit") {
-    // validate that at least one event is selected on submit
-    // begin
-    let oneActivitySelected = false;
-    checkboxes.each(i => {
-      if (checkboxes[i].checked) {
-        oneActivitySelected = true;
-      }
-    });
-
-    if (oneActivitySelected === false) {
-      showValidationMessage(
-        true,
-        checkBoxesFieldSet,
-        "You must select one activity"
-      );
-    } else {
-      showValidationMessage(false, checkBoxesFieldSet, "");
-    }
-    // end
-    // validate that at least one event is selected on submit
-
-    // if payment type is cc then validate cc, zip code and cvv
-    // begin
-    validateCC();
-    validateZipCode();
-    validateCVV();
-    // end
-    // if payment type is cc then validate cc, zip code and cvv
+  // User must select at least one checkbox under the "Register for Activities" section of the form.
+  // validate email field
+  console.log(typedID);
+  if (typedID === "payment" || typedID === "cc-num") {
+    //validateEmail(typedValue, typedID);
+    console.log("Calling validatePayment");
+    validatePayment(typedValue, typedID);
   }
+  // If the selected payment option is "Credit Card," make sure the user has supplied a Credit Card number, a Zip Code, and a 3 number CVV value before the form can be submitted.
 
-  // validate credit card
-  if (elementID === "" || eventType === "submit") {
-    //validateCC();
-  }
+  // Credit Card field should only accept a number between 13 and 16 digits.
+
+  // The Zip Code field should accept a 5-digit number.
+
+  // The CVV should only accept a number that is exactly 3 digits long.
 });
 
-function validateCVV() {
-  const cvv = $("#cvv");
-  const cvvValue = parseInt(cvv.val());
-  console.log("cvv is: " + $.type(cvvValue));
-  if (paymentMethodSelect.val() === "Credit Card") {
-    if (cvv.val().length !== 3 || !$.isNumeric(cvvValue)) {
-      showValidationMessage(true, cvv, "CVV needs to be 3 digit long");
-      return false;
-    } else {
-      showValidationMessage(false, cvv, "");
-      return true;
-    }
-  } else {
-    showValidationMessage(false, cvv, "");
-    return true;
-  }
-}
-
-function validateZipCode() {
-  const zipCode = $("#zip");
-  const zipCodeValue = parseInt(zipCode.val());
-  console.log("zip code is: " + $.type(zipCodeValue));
-  if (paymentMethodSelect.val() === "Credit Card") {
-    if (zipCode.val().length !== 5 || !$.isNumeric(zipCodeValue)) {
+function validatePayment(typedValue, typedID) {
+  if (typedValue === "Credit Card") {
+    // if cc selected
+    // cc number
+    // zip code
+    //cvv
+    const cvv = $("#cvv").val();
+    if (cvv.length !== 3) {
+      //return false;
       showValidationMessage(
         true,
-        zipCode,
-        "Zip code needs to be 5 digit long."
+        $("#" + typedID),
+        "CVV needs to be 3 digit long."
       );
-      return false;
     } else {
-      showValidationMessage(false, zipCode, "");
-      return true;
+      showValidationMessage(false, $("#" + typedID), "");
     }
-  } else {
-    showValidationMessage(false, zipCode, "");
-    return true;
-  }
-}
 
-function validateCC() {
-  const ccNumber = $("#cc-num");
-  const ccNumberValue = parseInt(ccNumber.val());
-  console.log("CC is: " + $.type(ccNumber.val()));
-  if (paymentMethodSelect.val() === "Credit Card") {
+    const ccNumber = $("#cc-num").val();
     if (
-      ccNumber.val().length >= 13 &&
-      ccNumber.val().length <= 16 &&
-      $.isNumeric(ccNumberValue)
+      !(ccNumber.length >= 13 && ccNumber.length <= 16 && $.isNumeric(ccNumber))
     ) {
-      console.log("2");
-      showValidationMessage(false, ccNumber, "");
-      return true;
-    } else {
-      console.log("1");
+      //return false;
+      console.log("sadjkf");
       showValidationMessage(
         true,
-        ccNumber,
-        "Credit Card must be between 13 and 16 digits long"
+        $("#" + typedID),
+        "Credit card needs to be between 13 and 16 digit long and numeric."
       );
-      return false;
-    }
-  } else {
-    showValidationMessage(false, ccNumber, "");
-    return true;
-  }
-}
-
-function validateEmail() {
-  const emailElement = $("#mail");
-
-  if (emailElement.val().length === 0) {
-    showValidationMessage(true, emailElement, "Email is required");
-    return false;
-  } else {
-    const testEmail = isValidEmail(emailElement.val());
-    //console.log(emailElement.val() + " is ::: " + testEmail);
-    if (testEmail) {
-      showValidationMessage(false, emailElement, "");
-      return true;
     } else {
-      showValidationMessage(true, emailElement, "Valid email required");
-      return false;
+      console.log("sadjkf");
+      showValidationMessage(false, $("#" + typedID), "");
+    }
+
+    const ccZipCode = $("#zip").val();
+    if (!(ccZipCode.length === 5 && $.isNumeric(ccZipCode))) {
+      // return false;
+      showValidationMessage(
+        true,
+        $("#" + typedID),
+        "Zip Code needs to be 5 digit long."
+      );
+    } else {
+      showValidationMessage(false, $("#" + typedID), "");
+    }
+
+    //showValidationMessage(true, $("#" + typedID), "Name is required");
+  }
+}
+
+function validateName(typedValue, typedID) {
+  if (typedValue.length === 0) {
+    showValidationMessage(true, $("#" + typedID), "Name is required");
+  } else {
+    showValidationMessage(false, $("#" + typedID), "Name is required");
+  }
+}
+
+function validateEmail(typedValue, typedID) {
+  const regEx = /^[^@]+@[^@.]+\.[a-z]+$/i;
+  //return regEx.test(typedValue);
+
+  if (typedValue.length === 0) {
+    showValidationMessage(true, $("#" + typedID), "Email is required");
+  } else {
+    const testEmail = isValidEmail(typedValue);
+    console.log(typedValue + " is ::: " + testEmail);
+    if (testEmail) {
+      showValidationMessage(false, $("#" + typedID), "");
+    } else {
+      showValidationMessage(true, $("#" + typedID), "Valid email required");
     }
   }
 }
-
-function validateName() {
-  const nameElement = $("#name");
-
-  if (nameElement.val().length === 0) {
-    // name field is blank
-    showValidationMessage(true, nameElement, "Name field is required");
-    return false;
-  } else {
-    // name field is valid
-    showValidationMessage(false, nameElement, "");
-    return true;
+$("form").on("submit", e => {
+  e.preventDefault();
+  //Name field can't be blank.
+  let name = $("#name").val();
+  if (name.length === 0) {
+    showValidationMessage(true, $("#name"), "Name is required");
   }
-}
+  //Email field must be a validly formatted e-mail address (you don't have to check that it's a real e-mail address, just that it's formatted like one: dave@teamtreehouse.com for example.
+  let email = $("#mail").val();
+
+  // User must select at least one checkbox under the "Register for Activities" section of the form.
+
+  // If the selected payment option is "Credit Card," make sure the user has supplied a Credit Card number, a Zip Code, and a 3 number CVV value before the form can be submitted.
+
+  // Credit Card field should only accept a number between 13 and 16 digits.
+
+  // The Zip Code field should accept a 5-digit number.
+
+  // The CVV should only accept a number that is exactly 3 digits long.
+  alert("form submitted");
+  return false;
+});
 
 // ================================================================
 // ==============  helper functions ===============================
@@ -421,24 +375,21 @@ function isValidEmail(email) {
   return regEx.test(email);
 }
 
-function isNumberss(v) {
-  const regEx = /\d/;
-  return regEx.test(v);
-}
-
 function showValidationMessage(show, element, message) {
   // set up span element to show error message
-  // const spanElement = document.createElement("span");
-  // spanElement.innerHTML = message;
-  // spanElement.id = "errorMessage";
+  const spanElement = document.createElement("span");
+  spanElement.innerHTML = message;
+  spanElement.id = "errorMessage";
 
   if (show) {
-    //spanElement.style.display = "inherit";
-    //$(element).after(spanElement);
-    $(element).css("background-color", "pink");
+    spanElement.style.display = "inherit";
+    $(element).after(spanElement);
   } else {
     //spanElement.style.display = "inherit";
-    //$("#errorMessage").remove();
-    $(element).css("background-color", "");
+    $("#errorMessage").remove();
   }
 }
+
+const testEmail = "my@email.com";
+const ttt = isValidEmail(testEmail);
+console.log(testEmail + " " + ttt);
