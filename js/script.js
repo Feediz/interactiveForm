@@ -50,7 +50,6 @@ $colorElementOptions.each(i => {
   $("#color :nth-child(" + i + ")").css("display", "none");
 });
 // append and select the option telling user to select theme first
-//$colorElement.append(new Option("Please select a T-shirt theme", ""));
 $colorElement.append('<option value="">Please select a T-shirt theme</option>');
 
 $colorElement.val("");
@@ -117,7 +116,6 @@ designElement.change(e => {
         }
 
         // select the tomato option
-        // $colorElement.val("tomato");
         $colorElement.val($("#color :nth-child(4)").val());
       });
     } else if (selectedDesign === "") {
@@ -337,14 +335,10 @@ $("form").on("input submit", e => {
     // end
     // if payment type is cc then validate cc, zip code and cvv
 
+    // submit form if form is valid
     if (isFormValid) {
       e.target.submit();
     }
-  }
-
-  // validate credit card
-  if (elementID === "" || eventType === "submit") {
-    //validateCC();
   }
 });
 
