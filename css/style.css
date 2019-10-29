@@ -199,30 +199,55 @@ option {
 }
 
 #errorMessage {
-  border-radius: 5px;
-  display: none;
-  font-size: 1.3em;
-  text-align: center;
-  position: absolute;
-  background: #2f558e;
-  /* left: 105%; 
-  top: 25px;
-  width: 160px;*/
-  padding: 7px 10px;
-  color: #fff;
-  float: right;
+  color: #333;
+  float: left;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  line-height: 20px;
+  margin: 0 20px 10px;
+  width: 200px;
 }
-#errorMessage:after {
-  /* right: 100%; */
-  top: 50%;
-  border: solid transparent;
-  content: " ";
-  height: 0;
-  width: 0;
-  position: absolute;
-  pointer-events: none;
-  border-color: rgba(136, 183, 213, 0);
-  border-right-color: #2f558e;
-  border-width: 8px;
-  margin-top: -8px;
+
+#errorMessage label {
+  display: block;
+  margin-bottom: 2px;
+}
+
+#errorMessage input[type="text"] {
+  background: #fff;
+  border: 1px solid #999;
+  float: left;
+  font-size: 13px;
+  height: 33px;
+  margin: 0;
+  padding: 0 0 0 15px;
+  width: 100%;
+}
+
+#errorMessage {
+  color: #cc0033;
+  display: inline-block;
+  font-size: 12px;
+  line-height: 15px;
+  margin: 5px 0 0;
+}
+
+#errorMessage {
+  display: none;
+}
+
+/* Error Styling */
+
+#errorMessage label {
+  color: #cc0033;
+}
+
+#errorMessage input[type="text"] {
+  background-color: #fce4e4;
+  border: 1px solid #cc0033;
+  outline: none;
+}
+
+#errorMessage {
+  display: inline-block;
 }

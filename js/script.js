@@ -1,9 +1,16 @@
-// ================================================================
-// ==============  Basic info section =============================
-// ================================================================
+// set default items
+// credit card payment type
+$("#payment").val("Credit Card");
+
 // setting focus on first field
 $("form:first *:input[type!=hidden]:first").focus();
 
+// hide the color div initially
+$("#colors-js-puns").hide();
+
+// ================================================================
+// ==============  Basic info section =============================
+// ================================================================
 // including and displaying if job role selected is 'Other'
 const jobRoleElement = $("#title");
 
@@ -50,6 +57,7 @@ $colorElement.val("");
 
 designElement.change(e => {
   const selectedDesign = e.target.value;
+
   // starting with one since select options indexes are not zero based
   let i = 1;
 
@@ -60,6 +68,7 @@ designElement.change(e => {
   $("option:contains(Select Theme)").hide();
 
   if (designElement.value !== "") {
+    $("#colors-js-puns").show();
     if (selectedDesign === "js puns") {
       $colorElementOptions.each(i => {
         i = i + 1;
@@ -253,25 +262,42 @@ paymentMethodSelect.on("change", e => {
 // ================================================================
 // ==============  validator functions ============================
 // ================================================================
+
+// validate credit card in real time
+$("#credit-card").on("input", e => {
+  validateCC();
+});
+
+// validate zip code in real time
+$("#zip").on("input", e => {
+  validateZipCode();
+});
+
+// validate cvv in real time
+$("#cvv").on("input", e => {
+  validateCVV();
+});
+
 $("form").on("input submit", e => {
   e.preventDefault();
   const eventType = e.type;
   const element = e.target;
   const elementID = element.id;
 
-  let isFormValid = false;
+  let isFormValid = true;
 
   // validate name field on submit and as user types
   if (elementID === "name" || eventType === "submit") {
-    if (validateName()) {
-      isFormValid = true;
-      console.log(isFormValid);
+    if (!validateName()) {
+      isFormValid = false;
     }
   }
 
   // validate email field on submit and as user types
   if (elementID === "mail" || eventType === "submit") {
-    validateEmail();
+    if (!validateEmail()) {
+      isFormValid = false;
+    }
   }
 
   if (eventType === "submit") {
@@ -285,6 +311,7 @@ $("form").on("input submit", e => {
     });
 
     if (oneActivitySelected === false) {
+      isFormValid = false;
       showValidationMessage(
         true,
         checkBoxesFieldSet,
@@ -298,11 +325,21 @@ $("form").on("input submit", e => {
 
     // if payment type is cc then validate cc, zip code and cvv
     // begin
-    validateCC();
-    validateZipCode();
-    validateCVV();
+    if (!validateCC()) {
+      isFormValid = false;
+    }
+    if (!validateZipCode()) {
+      isFormValid = false;
+    }
+    if (!validateCVV()) {
+      isFormValid = false;
+    }
     // end
     // if payment type is cc then validate cc, zip code and cvv
+
+    if (isFormValid) {
+      e.target.submit();
+    }
   }
 
   // validate credit card
@@ -311,17 +348,23 @@ $("form").on("input submit", e => {
   }
 });
 
+/**
+ * validateCVV()
+ * @return {boolean} true if valid cvv false if not
+ */
 function validateCVV() {
   const cvv = $("#cvv");
   const cvvValue = parseInt(cvv.val());
-  console.log("cvv is: " + $.type(cvvValue));
   if (paymentMethodSelect.val() === "Credit Card") {
-    if (cvv.val().length !== 3 || !$.isNumeric(cvvValue)) {
-      showValidationMessage(true, cvv, "CVV needs to be 3 digit long");
-      return false;
-    } else {
+    if (cvv.val().length === 3 && $.isNumeric(cvvValue)) {
       showValidationMessage(false, cvv, "");
       return true;
+    } else if (cvv.val().length === 0) {
+      showValidationMessage(true, cvv, "Please enter CVV");
+      return false;
+    } else {
+      showValidationMessage(true, cvv, "Enter 3 digit long CVV.");
+      return false;
     }
   } else {
     showValidationMessage(false, cvv, "");
@@ -329,21 +372,23 @@ function validateCVV() {
   }
 }
 
+/**
+ * validateZipCode()
+ * @return {boolean} true if valid zip code false if not
+ */
 function validateZipCode() {
   const zipCode = $("#zip");
   const zipCodeValue = parseInt(zipCode.val());
-  console.log("zip code is: " + $.type(zipCodeValue));
   if (paymentMethodSelect.val() === "Credit Card") {
-    if (zipCode.val().length !== 5 || !$.isNumeric(zipCodeValue)) {
-      showValidationMessage(
-        true,
-        zipCode,
-        "Zip code needs to be 5 digit long."
-      );
-      return false;
-    } else {
+    if (zipCode.val().length === 5 && $.isNumeric(zipCodeValue)) {
       showValidationMessage(false, zipCode, "");
       return true;
+    } else if (zipCode.val().length === 0) {
+      showValidationMessage(true, zipCode, "Please enter a zip code.");
+      return false;
+    } else {
+      showValidationMessage(true, zipCode, "Enter 5 digit Zip code.");
+      return false;
     }
   } else {
     showValidationMessage(false, zipCode, "");
@@ -351,21 +396,30 @@ function validateZipCode() {
   }
 }
 
+/**
+ * validateCC()
+ * @return {boolean} true if valid cc number false if not
+ */
 function validateCC() {
   const ccNumber = $("#cc-num");
   const ccNumberValue = parseInt(ccNumber.val());
-  console.log("CC is: " + $.type(ccNumber.val()));
+  // console.log("CC is: " + $.type(ccNumber.val()));
   if (paymentMethodSelect.val() === "Credit Card") {
     if (
       ccNumber.val().length >= 13 &&
       ccNumber.val().length <= 16 &&
       $.isNumeric(ccNumberValue)
     ) {
-      console.log("2");
       showValidationMessage(false, ccNumber, "");
       return true;
+    } else if (ccNumber.val().length === 0) {
+      showValidationMessage(
+        true,
+        ccNumber,
+        "Please enter a credit card number."
+      );
+      return false;
     } else {
-      console.log("1");
       showValidationMessage(
         true,
         ccNumber,
@@ -379,6 +433,10 @@ function validateCC() {
   }
 }
 
+/**
+ * validateEmail()
+ * @return {boolean} true if valid email false if not
+ */
 function validateEmail() {
   const emailElement = $("#mail");
 
@@ -387,7 +445,6 @@ function validateEmail() {
     return false;
   } else {
     const testEmail = isValidEmail(emailElement.val());
-    //console.log(emailElement.val() + " is ::: " + testEmail);
     if (testEmail) {
       showValidationMessage(false, emailElement, "");
       return true;
@@ -398,6 +455,10 @@ function validateEmail() {
   }
 }
 
+/**
+ * validateName()
+ * @return {boolean} true if valid name false if not
+ */
 function validateName() {
   const nameElement = $("#name");
 
@@ -415,30 +476,45 @@ function validateName() {
 // ================================================================
 // ==============  helper functions ===============================
 // ================================================================
-// Must be a valid email address my@email.com
+
+/**
+ * isValidEmail()
+ * @param email to be validated
+ * @return {boolean} true if valid email false if not
+ */
 function isValidEmail(email) {
   const regEx = /^[^@]+@[^@.]+\.[a-z]+$/i;
   return regEx.test(email);
 }
 
-function isNumberss(v) {
-  const regEx = /\d/;
-  return regEx.test(v);
-}
-
+/**
+ * showValidationMessage()
+ * @param show  boolean whether to show or hide error indicator on the form element
+ * @param element form element to show or hide error indicator on
+ * @param message error message to display if we are displaying error message instead of indicator
+ */
 function showValidationMessage(show, element, message) {
   // set up span element to show error message
-  // const spanElement = document.createElement("span");
-  // spanElement.innerHTML = message;
-  // spanElement.id = "errorMessage";
+  const spanElement = document.createElement("div");
+  spanElement.innerHTML = message;
+  spanElement.id = "errorMessage";
 
   if (show) {
-    //spanElement.style.display = "inherit";
-    //$(element).after(spanElement);
-    $(element).css("background-color", "pink");
+    spanElement.style.display = "inline-block";
+    $errorElement = $(element).next();
+
+    if ($errorElement.attr("id") === "errorMessage") {
+      $errorElement.remove();
+    }
+    $(element).after(spanElement);
+
+    $(spanElement).css("margin", "1px 0 0");
+    $(element).css("border", "5px solid #cc0033");
   } else {
-    //spanElement.style.display = "inherit";
-    //$("#errorMessage").remove();
+    $(element)
+      .next()
+      .hide();
     $(element).css("background-color", "");
+    $(element).css("border", "");
   }
 }
