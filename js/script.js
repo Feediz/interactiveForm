@@ -493,10 +493,9 @@ function showValidationMessage(show, element, message) {
   spanElement.innerHTML = message;
   spanElement.id = "errorMessage";
 
+  spanElement.style.display = "inline-block";
+  $errorElement = $(element).next();
   if (show) {
-    spanElement.style.display = "inline-block";
-    $errorElement = $(element).next();
-
     if ($errorElement.attr("id") === "errorMessage") {
       $errorElement.remove();
     }
@@ -505,10 +504,10 @@ function showValidationMessage(show, element, message) {
     $(spanElement).css("margin", "1px 0 0");
     $(element).css("border", "5px solid #cc0033");
   } else {
-    $(element)
-      .next()
-      .hide();
-    $(element).css("background-color", "");
-    $(element).css("border", "");
+    if ($errorElement.attr("id") === "errorMessage") {
+      $errorElement.hide();
+      $errorElement.css("background-color", "");
+      $errorElement.css("border", "");
+    }
   }
 }
